@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blushify Store — Usaha para GenZ</title>
+  <style>
+    :root { 
+      --pink: #f9dce8; 
+      --pink-dark: #e8a8c2; 
+      --navy: #1f2a44; 
+      --white: #ffffff; 
+      --radius: 12px; 
+    }
+    
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body { background-color: var(--pink); margin: 0; padding-bottom: 50px; color: var(--navy); }
+    
+    header { 
+      display: flex; justify-content: space-between; align-items: center; 
+      background: white; padding: 15px 5%; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-weight: 800; font-size: 1.3rem; color: var(--pink-dark); cursor: pointer; }
+    nav a { margin-left: 15px; text-decoration: none; font-weight: 600; color: var(--navy); cursor: pointer; }
+    
+    .container { max-width: 1150px; margin: 25px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 340px; gap: 25px; }
+    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+    .hero { background: white; padding: 35px; border-radius: var(--radius); grid-column: 1 / -1; text-align: center; margin-bottom: 5px; }
+
+    .card { background: white; padding: 20px; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 20px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .prod-card { background: white; border-radius: var(--radius); padding: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: 0.3s; border: 1px solid #fdf0f5; }
+    
+    .prod-img { width: 100%; height: 190px; border-radius: 8px; object-fit: cover; margin-bottom: 12px; background: #fdf0f5; }
+    .stok-label { font-size: 11px; color: #999; font-weight: 600; display: block; margin-bottom: 2px; }
+    .price-label { color: var(--pink-dark); font-weight: 800; font-size: 1.1rem; margin-bottom: 12px; display: block; }
+
+    .btn { border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: 0.3s; width: 100%; font-size: 0.85rem; }
+    .btn-primary { background: var(--pink-dark); color: white; }
+    .btn-detail { background: #f8f8f8; color: var(--navy); margin-bottom: 8px; }
+    .btn-remove { background: #fff1f0; color: #ff4d4f; padding: 4px 10px; width: auto; font-size: 11px; border: 1px solid #ffa39e; border-radius: 6px; cursor: pointer;}
+
+    .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f5f5f5; }
+    .cart-empty { text-align: center; color: #ccc; padding: 30px 0; font-size: 0.9rem; }
+    
+    select, input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #eee; border-radius: 8px; font-size: 13px; outline: none; }
+    .summary-line { display: flex; justify-content: space-between; font-size: 13px; margin: 6px 0; }
+
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal.open { display: flex; }
+    .panel { background: white; padding: 25px; border-radius: var(--radius); width: 100%; max-width: 400px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo" onclick="location.reload()">Blushify Store</div>
+    <nav>
+      <a onclick="document.getElementById('catalog-area').scrollIntoView()">Produk</a>
+      <a onclick="document.getElementById('checkout-area').scrollIntoView()">Checkout</a>
+      <a onclick="openAdmin()" style="color: var(--pink-dark)">Admin</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <section class="hero">
+      <div style="background: var(--pink); color:var(--pink-dark); font-weight:bold; font-size:0.75rem; display:inline-block; padding:4px 15px; border-radius:20px; margin-bottom:10px;">PROMO GEN-Z</div>
+      <h1>Toko Online Usaha Para GenZ</h1>
+      <p style="font-size:14px; color:#777;">Platform jualan aesthetic dengan fitur checkout lengkap.</p>
+    </section>
+
+    <main>
+      <div class="card" id="catalog-area">
+        <h3 style="margin-top:0">Katalog Produk</h3>
+        <div class="products-grid" id="product-list"></div>
+      </div>
+
+      <div class="card">
+        <h3>Hubungi Kami & Order</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <input type="text" id="cName" placeholder="Nama Lengkap">
+          <input type="email" id="cEmail" placeholder="Email Aktif">
+        </div>
+        <input type="text" id="cAddress" placeholder="Alamat Lengkap Pembeli">
+        <textarea id="cMsg" rows="3" placeholder="Pesan atau Detail Tambahan..."></textarea>
+        <button class="btn btn-primary" onclick="alert('Terima kasih! Data Anda sudah terkirim.')">Kirim Data</button>
+      </div>
+    </main>
+
+    <aside id="checkout-area">
+      <div class="card">
+        <h3>Keranjang Belanja</h3>
+        <div id="cart-items"></div>
+        <div style="border-top: 2px dashed #f0f0f0; margin-top:15px; padding-top:15px;">
+          <label class="stok-label">Ongkir:</label>
+          <select id="city" onchange="updateCartUI()">
+            <option value="12000">Jakarta (Rp 12k)</option>
+            <option value="15000">Bandung (Rp 15k)</option>
+            <option value="25000">Luar Pulau (Rp 25k)</option>
+          </select>
+          <div class="summary-line"><span>Subtotal</span> <span id="sub-price">Rp 0</span></div>
+          <div class="summary-line"><span>Total</span> <span id="total-price" style="font-weight:bold; color:var(--pink-dark)">Rp 0</span></div>
+          <button class="btn btn-primary" onclick="processCheckout()" style="margin-top:10px;">Checkout Sekarang</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div id="adminModal" class="modal">
+    <div class="panel">
+      <h3>Tambah Produk Baru</h3>
+      <label class="stok-label">Nama Produk</label>
+      <input type="text" id="admName" placeholder="Nama Produk">
+      <label class="stok-label">Harga (Rp)</label>
+      <input type="number" id="admPrice" placeholder="Harga">
+      <label class="stok-label">Stok Tersedia</label>
+      <input type="number" id="admStok" value="10">
+      <label class="stok-label">Upload Foto</label>
+      <input type="file" id="admImg" accept="image/*" onchange="previewFile(this)">
+      <div id="imgPrev" style="margin-top:10px; text-align:center"></div>
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="btn btn-primary" onclick="saveProduct()">Simpan</button>
+        <button class="btn btn-detail" onclick="closeAdmin()">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let products = [
+      { id: 1, name: 'Kaos Custom ', price: 85000, stok: 32, img: 'assets/baju-custom.jpg' },
+      { id: 2, name: 'Aksesoris ', price: 30000, stok: 150, img: 'assets/accesory.jpg' },
+      { id: 3, name: 'Totebag ', price: 125000, stok: 100, img: 'assets/tothbag.jpg' },
+      { id: 4, name: 'Kacamata Retro Vintage', price: 40000, stok: 15, img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500' },
+      { id: 5, name: 'Penjepit Rambut', price: 5000, stok: 98, img: 'assets/penjepit-rambut.jpg' },
+      { id: 6, name: 'Dompet Mini', price: 40000, stok: 42, img: 'assets/mini-wallet.jpg' }
+    ];
+
+    let cart = [];
+    let base64Img = "";
+
+    function renderProducts() {
+      const list = document.getElementById('product-list');
+      list.innerHTML = products.map(p => `
+        <div class="prod-card">
+          <img src="${p.img}" class="prod-img" onerror="this.src='https://via.placeholder.com/400x400/f9dce8/e8a8c2?text=Foto+Produk'">
+          <strong style="font-size:14px; display:block; margin-bottom:5px;">${p.name}</strong>
+          <span class="stok-label">Tersedia: ${p.stok} pcs</span>
+          <span class="price-label">Rp ${p.price.toLocaleString('id-ID')}</span>
+          <button class="btn btn-primary" onclick="addToCart(${p.id})">Tambah</button>
+        </div>
+      `).join('');
+    }
+
+    function addToCart(id) {
+      const p = products.find(x => x.id === id);
+      cart.push({...p, cartId: Date.now() + Math.random()});
+      updateCartUI();
+    }
+
+    function removeFromCart(cartId) {
+      cart = cart.filter(item => item.cartId !== cartId);
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const cList = document.getElementById('cart-items');
+      if (cart.length === 0) {
+        cList.innerHTML = '<div class="cart-empty">Keranjang kosong</div>';
+        document.getElementById('sub-price').innerText = "Rp 0";
+        document.getElementById('total-price').innerText = "Rp 0";
+        return;
+      }
+      cList.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div><div style="font-weight:bold">${item.name}</div><div>Rp ${item.price.toLocaleString('id-ID')}</div></div>
+          <button class="btn-remove" onclick="removeFromCart(${item.cartId})">Hapus</button>
+        </div>
+      `).join('');
+      const subtotal = cart.reduce((sum, i) => sum + i.price, 0);
+      const ongkir = parseInt(document.getElementById('city').value);
+      document.getElementById('sub-price').innerText = "Rp " + subtotal.toLocaleString('id-ID');
+      document.getElementById('total-price').innerText = "Rp " + (subtotal + ongkir).toLocaleString('id-ID');
+    }
+
+    // FUNGSI UNTUK MENGHAPUS ISI KERANJANG SAAT CHECKOUT
+    function processCheckout() {
+      if (cart.length === 0) {
+        alert("Keranjang masih kosong!");
+        return;
+      }
+      alert("Terima kasih! Pesanan Anda sedang diproses. Keranjang akan dikosongkan.");
+      cart = []; // Mengosongkan array keranjang
+      updateCartUI(); // Memperbarui tampilan menjadi kosong
+    }
+
+    function openAdmin() { document.getElementById('adminModal').classList.add('open'); }
+    function closeAdmin() { 
+        document.getElementById('adminModal').classList.remove('open'); 
+        document.getElementById('imgPrev').innerHTML = "";
+        base64Img = "";
+    }
+
+    function previewFile(input) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        base64Img = e.target.result;
+        document.getElementById('imgPrev').innerHTML = `<img src="${base64Img}" style="width:100px; border-radius:8px;">`;
+      };
+      if(input.files[0]) reader.readAsDataURL(input.files[0]);
+    }
+
+    function saveProduct() {
+      const n = document.getElementById('admName').value;
+      const p = parseInt(document.getElementById('admPrice').value);
+      const s = parseInt(document.getElementById('admStok').value);
+      if(!n || !p) return alert("Isi Nama & Harga!");
+      products.push({ id: Date.now(), name: n, price: p, stok: s || 0, img: base64Img || '' });
+      renderProducts();
+      closeAdmin();
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
